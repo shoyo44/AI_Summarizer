@@ -957,16 +957,22 @@
     font-size: 1.1rem;
   }
 
+  /* Native scroll — let the page grow naturally */
   .app-layout {
     height: auto;
     min-height: 100dvh;
+    overflow: visible;
   }
 
   .main-container {
     height: auto;
-    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Remove max fixed height so content cards can fill naturally */
+    flex: 1;
   }
 }
+
 
 @media (max-width: 480px) {
   .nav-left h1 {
