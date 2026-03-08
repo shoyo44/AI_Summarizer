@@ -296,8 +296,15 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
                   <button className="action-btn" onClick={handleShare} disabled={!result || !currentHistoryId || sharing} title={shareLink ? 'Link copied!' : 'Generate public link'} style={{ color: shareLink ? '#f59e0b' : '' }}>
                     {sharing ? '⏳' : (shareLink ? '✅ Copied' : '🔗 Share')}
                   </button>
-                  <button className="action-btn" onClick={handleExportPDF} disabled={!result} title="Export as PDF">📄 PDF</button>
-                  <button className="action-btn" onClick={handleExportMarkdown} disabled={!result} title="Export as Markdown">📝 MD</button>
+                  <div className="download-dropdown">
+                    <button className="action-btn" disabled={!result} title="Download options">⬇️ Download</button>
+                    {result && (
+                      <div className="dropdown-menu">
+                        <button onClick={handleExportPDF} title="Download inside PDF format">📄 PDF</button>
+                        <button onClick={handleExportMarkdown} title="Download inside MD format">📝 MD</button>
+                      </div>
+                    )}
+                  </div>
                   <button
                     className="action-btn"
                     onClick={() => navigator.clipboard.writeText(result)}
