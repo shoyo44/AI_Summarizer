@@ -100,7 +100,15 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
       setShareLink('')
       onAnalysisComplete()
     } catch (err: any) {
-      setError(err.message || 'Analysis failed')
+      if (typeof err === 'string') {
+        setError(err)
+      } else if (err?.response?.data?.detail) {
+        setError(typeof err.response.data.detail === 'string' ? err.response.data.detail : JSON.stringify(err.response.data.detail))
+      } else if (err?.message) {
+        setError(typeof err.message === 'string' ? err.message : JSON.stringify(err.message))
+      } else {
+        setError(JSON.stringify(err) || 'Analysis failed')
+      }
     } finally {
       setLoading(false)
     }
