@@ -460,6 +460,8 @@
 
   transition: all 0.3s var(--ease-out);
 
+  overflow: visible;
+
 }
 
 .input-section:hover,
@@ -1177,8 +1179,8 @@ textarea:focus {
     padding: 1rem;
     box-shadow: var(--shadow-md);
     box-sizing: border-box;
-    overflow: hidden;
-    /* Prevent spillover */
+    overflow: visible;
+    /* Prevent clipping of dropdown / spillover is handled by inner content scrolling */
   }
 
   /* Sidebar header (title above role selector) */
