@@ -24,6 +24,7 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null)
   const [shareLink, setShareLink] = useState('')
   const [sharing, setSharing] = useState(false)
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -178,6 +179,20 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
     link.download = `analysis_${Date.now()}.md`
     link.click()
     URL.revokeObjectURL(url)
+    setShowDownloadModal(false)
+  }
+
+  const handleExportTxt = () => {
+    if (!result || isImageResult) return
+    const textBlob = `AI Analysis - ${selectedUsecaseData?.name || 'Summary'}\n\n${result}`
+    const blob = new Blob([textBlob], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `analysis_${Date.now()}.txt`
+    link.click()
+    URL.revokeObjectURL(url)
+    setShowDownloadModal(false)
   }
 
   const getUsecaseIcon = (name: string) => {
@@ -314,15 +329,9 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
                   <button className="action-btn" onClick={handleShare} disabled={!result || !currentHistoryId || sharing} title={shareLink ? 'Link copied!' : 'Generate public link'} style={{ color: shareLink ? '#f59e0b' : '' }}>
                     {sharing ? '⏳' : (shareLink ? '✅ Copied' : '🔗 Share')}
                   </button>
-                  <div className="download-dropdown">
-                    <button className="action-btn" disabled={!result} title="Download options">⬇️ Download</button>
-                    {result && (
-                      <div className="dropdown-menu">
-                        <button onClick={handleExportPDF} title="Download inside PDF format">📄 PDF</button>
-                        <button onClick={handleExportMarkdown} title="Download inside MD format">📝 MD</button>
-                      </div>
-                    )}
-                  </div>
+                  <button className="action-btn" onClick={() => setShowDownloadModal(true)} disabled={!result} title="Download options">
+                    ⬇️ Download
+                  </button>
                   <button
                     className="action-btn"
                     onClick={() => navigator.clipboard.writeText(result)}
@@ -357,6 +366,40 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
           </div>
         </div>
       </main>
+      {/* DOWNLOAD MODAL */}
+      {showDownloadModal && (
+        <div className="download-modal-overlay" onClick={() => setShowDownloadModal(false)}>
+          <div className="download-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="download-modal-header">
+              <h3>Download As</h3>
+              <button className="close-modal-btn" onClick={() => setShowDownloadModal(false)}>✕</button>
+            </div>
+            <div className="download-options">
+              <button className="download-option-btn" onClick={handleExportPDF}>
+                <span className="icon">📄</span>
+                <div className="details">
+                  <h4>PDF Document</h4>
+                  <p>Formatted and ready for professional sharing</p>
+                </div>
+              </button>
+              <button className="download-option-btn" onClick={handleExportMarkdown}>
+                <span className="icon">📝</span>
+                <div className="details">
+                  <h4>Markdown</h4>
+                  <p>Raw markdown for wikis or code editors</p>
+                </div>
+              </button>
+              <button className="download-option-btn" onClick={handleExportTxt}>
+                <span className="icon">📃</span>
+                <div className="details">
+                  <h4>Plain Text</h4>
+                  <p>Unformatted text for maximum compatibility</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
