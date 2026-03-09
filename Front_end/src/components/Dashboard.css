@@ -388,7 +388,7 @@
 
    ═══════════════════════════════════════════════════════════════ */
 
-.dropdown-menu {
+.nav-dropdown-menu {
 
   position: absolute;
 
@@ -434,7 +434,7 @@
 
 }
 
-.dropdown-item {
+.nav-dropdown-item {
 
   display: flex;
 
@@ -466,7 +466,7 @@
 
 }
 
-.dropdown-item:hover {
+.nav-dropdown-item:hover {
 
   background: var(--bg-elevated);
 
@@ -474,7 +474,7 @@
 
 }
 
-.dropdown-item svg {
+.nav-dropdown-item svg {
 
   flex-shrink: 0;
 
@@ -482,13 +482,13 @@
 
 }
 
-.dropdown-item:hover svg {
+.nav-dropdown-item:hover svg {
 
   opacity: 1;
 
 }
 
-.dropdown-item-danger:hover {
+.nav-dropdown-item-danger:hover {
 
   background: rgba(248, 113, 113, 0.08);
 
@@ -496,7 +496,7 @@
 
 }
 
-.dropdown-divider {
+.nav-dropdown-divider {
 
   height: 1px;
 

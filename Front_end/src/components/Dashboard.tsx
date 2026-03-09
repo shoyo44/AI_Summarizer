@@ -154,15 +154,15 @@ export default function Dashboard() {
           </button>
 
           {showMenu && (
-            <div className="dropdown-menu">
-              <button className="dropdown-item" onClick={() => { setShowMenu(false); setActiveTab(activeTab === 'history' ? 'analyzer' : 'history') }}>
+            <div className="nav-dropdown-menu">
+              <button className="nav-dropdown-item" onClick={() => { setShowMenu(false); setActiveTab(activeTab === 'history' ? 'analyzer' : 'history') }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
                 History
               </button>
-              <button className="dropdown-item" onClick={() => { setShowMenu(false); setActiveTab('analytics') }}>
+              <button className="nav-dropdown-item" onClick={() => { setShowMenu(false); setActiveTab('analytics') }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 20V10" />
                   <path d="M18 20V4" />
@@ -170,7 +170,7 @@ export default function Dashboard() {
                 </svg>
                 Analytics
               </button>
-              <button className="dropdown-item" onClick={() => { setShowMenu(false); setShowAbout(true) }}>
+              <button className="nav-dropdown-item" onClick={() => { setShowMenu(false); setShowAbout(true) }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="16" x2="12" y2="12" />
@@ -178,8 +178,8 @@ export default function Dashboard() {
                 </svg>
                 About AI Summarizer
               </button>
-              <div className="dropdown-divider" />
-              <button className="dropdown-item dropdown-item-danger" onClick={() => { setShowMenu(false); signOut() }}>
+              <div className="nav-dropdown-divider" />
+              <button className="nav-dropdown-item nav-dropdown-item-danger" onClick={() => { setShowMenu(false); signOut() }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                   <polyline points="16 17 21 12 16 7" />
