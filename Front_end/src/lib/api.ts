@@ -1,5 +1,52 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+function stringifyDetail(detail: unknown): string {
+  if (typeof detail === 'string') return detail
+  if (Array.isArray(detail)) {
+    const parts = detail
+      .map(item => {
+        if (typeof item === 'string') return item
+        if (item && typeof item === 'object') {
+          const record = item as Record<string, unknown>
+          const loc = Array.isArray(record.loc) ? record.loc.join('.') : ''
+          const msg = typeof record.msg === 'string' ? record.msg : ''
+          return [loc, msg].filter(Boolean).join(': ')
+        }
+        return ''
+      })
+      .filter(Boolean)
+    if (parts.length > 0) return parts.join('; ')
+  }
+  if (detail && typeof detail === 'object') {
+    try {
+      return JSON.stringify(detail)
+    } catch {
+      return 'Request failed'
+    }
+  }
+  return 'Request failed'
+}
+
+async function getErrorMessage(response: Response, fallback: string): Promise<string> {
+  try {
+    const errorBody = await response.json()
+    return stringifyDetail(errorBody?.detail) || fallback
+  } catch {
+    return fallback
+  }
+}
+
+function getNetworkErrorMessage(url: string): string {
+  const isLocalApi = url.includes('localhost') || url.includes('127.0.0.1')
+  if (isLocalApi && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'Backend API URL is set to localhost. Set VITE_API_URL in Vercel to your deployed backend HTTPS URL and redeploy.'
+  }
+  if (window.location.protocol === 'https:' && url.startsWith('http://')) {
+    return 'Blocked insecure API request (HTTP) from HTTPS site. Use an HTTPS backend URL in VITE_API_URL.'
+  }
+  return 'Cannot reach backend API. Check VITE_API_URL, backend uptime, and CORS settings.'
+}
+
 export interface Usecase {
   id: string
   name: string
@@ -80,71 +127,115 @@ class ApiClient {
   }
 
   async getUsecases(): Promise<Usecase[]> {
-    const response = await fetch(`${API_BASE_URL}/usecases`)
-    if (!response.ok) throw new Error('Failed to fetch usecases')
+    const requestUrl = `${API_BASE_URL}/usecases`
+    let response: Response
+    try {
+      response = await fetch(requestUrl)
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Failed to fetch usecases'))
     return response.json()
   }
 
   async getCurrentUser(token: string): Promise<UserInfo> {
-    const response = await fetch(`${API_BASE_URL}/me`, {
-      headers: this.getHeaders(token),
-    })
-    if (!response.ok) throw new Error('Failed to fetch user info')
+    const requestUrl = `${API_BASE_URL}/me`
+    let response: Response
+    try {
+      response = await fetch(requestUrl, {
+        headers: this.getHeaders(token),
+      })
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Failed to fetch user info'))
     return response.json()
   }
 
   async analyze(request: AnalyzeRequest, token: string): Promise<AnalyzeResponse> {
-    const response = await fetch(`${API_BASE_URL}/analyze`, {
-      method: 'POST',
-      headers: this.getHeaders(token),
-      body: JSON.stringify(request),
-    })
+    const requestUrl = `${API_BASE_URL}/analyze`
+    let response: Response
+    try {
+      response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(request),
+      })
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.detail || 'Analysis failed')
+      throw new Error(await getErrorMessage(response, 'Analysis failed'))
     }
     return response.json()
   }
 
   async getHistory(token: string, limit = 20, skip = 0): Promise<HistoryItem[]> {
-    const response = await fetch(
-      `${API_BASE_URL}/history?limit=${limit}&skip=${skip}`,
-      {
+    const requestUrl = `${API_BASE_URL}/history?limit=${limit}&skip=${skip}`
+    let response: Response
+    try {
+      response = await fetch(requestUrl, {
         headers: this.getHeaders(token),
-      }
-    )
-    if (!response.ok) throw new Error('Failed to fetch history')
+      })
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Failed to fetch history'))
     return response.json()
   }
 
   async getAnalytics(token: string): Promise<AnalyticsData> {
-    const response = await fetch(`${API_BASE_URL}/analytics`, {
-      headers: this.getHeaders(token),
-    })
-    if (!response.ok) throw new Error('Failed to fetch analytics')
+    const requestUrl = `${API_BASE_URL}/analytics`
+    let response: Response
+    try {
+      response = await fetch(requestUrl, {
+        headers: this.getHeaders(token),
+      })
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Failed to fetch analytics'))
     return response.json()
   }
 
   async deleteHistoryItem(historyId: string, token: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/history/${historyId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders(token),
-    })
-    if (!response.ok) throw new Error('Failed to delete history item')
+    const requestUrl = `${API_BASE_URL}/history/${historyId}`
+    let response: Response
+    try {
+      response = await fetch(requestUrl, {
+        method: 'DELETE',
+        headers: this.getHeaders(token),
+      })
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Failed to delete history item'))
   }
 
   async shareHistoryItem(historyId: string, token: string): Promise<{ share_id: string }> {
-    const response = await fetch(`${API_BASE_URL}/history/${historyId}/share`, {
-      method: 'POST',
-      headers: this.getHeaders(token),
-    })
-    if (!response.ok) throw new Error('Failed to share item')
+    const requestUrl = `${API_BASE_URL}/history/${historyId}/share`
+    let response: Response
+    try {
+      response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+      })
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Failed to share item'))
     return response.json()
   }
 
   async getSharedItem(shareId: string): Promise<HistoryItem> {
-    const response = await fetch(`${API_BASE_URL}/shared/${shareId}`)
-    if (!response.ok) throw new Error('Shared item not found')
+    const requestUrl = `${API_BASE_URL}/shared/${shareId}`
+    let response: Response
+    try {
+      response = await fetch(requestUrl)
+    } catch {
+      throw new Error(getNetworkErrorMessage(requestUrl))
+    }
+    if (!response.ok) throw new Error(await getErrorMessage(response, 'Shared item not found'))
     return response.json()
   }
 }

@@ -86,10 +86,17 @@ app = FastAPI(
     version="1.0.0",
 )
 
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "*")
+allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+allowed_origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins if allowed_origins else ["*"],
+    allow_origin_regex=allowed_origin_regex,
+    # This API uses Bearer tokens (Authorization header), not cookies.
+    # Keeping credentials disabled avoids wildcard+credentials CORS conflicts in browsers.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

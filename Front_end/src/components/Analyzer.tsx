@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { api } from '../lib/api'
 import type { Usecase } from '../lib/api'
 import { parseFile, validateFile } from '../lib/fileParser'
+import { getReadableError } from '../lib/error'
 import './Analyzer.css'
 interface AnalyzerProps {
   usecases: Usecase[]
@@ -68,8 +69,8 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
       setError('')
       const result = await parseFile(file)
       setText(prev => prev ? `${prev}\n\n${result.text}` : result.text)
-    } catch (err: any) {
-      setError(err.message || 'Failed to parse file')
+    } catch (err: unknown) {
+      setError(getReadableError(err, 'Failed to parse file'))
     } finally {
       setIsParsing(false)
       if (fileInputRef.current) {
@@ -99,16 +100,8 @@ export default function Analyzer({ usecases, onAnalysisComplete, initialText, in
       setCurrentHistoryId(response.history_id || null)
       setShareLink('')
       onAnalysisComplete()
-    } catch (err: any) {
-      if (typeof err === 'string') {
-        setError(err)
-      } else if (err?.response?.data?.detail) {
-        setError(typeof err.response.data.detail === 'string' ? err.response.data.detail : JSON.stringify(err.response.data.detail))
-      } else if (err?.message) {
-        setError(typeof err.message === 'string' ? err.message : JSON.stringify(err.message))
-      } else {
-        setError(JSON.stringify(err) || 'Analysis failed')
-      }
+    } catch (err: unknown) {
+      setError(getReadableError(err, 'Analysis failed'))
     } finally {
       setLoading(false)
     }

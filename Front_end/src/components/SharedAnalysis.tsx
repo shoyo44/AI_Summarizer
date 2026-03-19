@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '../lib/api'
 import type { HistoryItem } from '../lib/api'
+import { getReadableError } from '../lib/error'
 
 interface SharedAnalysisProps {
     shareId: string
@@ -18,7 +19,7 @@ export default function SharedAnalysis({ shareId }: SharedAnalysisProps) {
                 setLoading(false)
             })
             .catch(err => {
-                setError(err.message || 'Shared analysis not found or is private.')
+                setError(getReadableError(err, 'Shared analysis not found or is private.'))
                 setLoading(false)
             })
     }, [shareId])

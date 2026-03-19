@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { getReadableError } from '../lib/error'
 import './Login.css'
 
 export default function Login() {
@@ -12,8 +13,8 @@ export default function Login() {
       setLoading(true)
       setError('')
       await signInWithGoogle()
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in')
+    } catch (err: unknown) {
+      setError(getReadableError(err, 'Failed to sign in'))
     } finally {
       setLoading(false)
     }
